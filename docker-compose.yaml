@@ -1,17 +1,22 @@
 services:
   postgres:
-    image: postgres:latest
+    image: postgres:16
     container_name: property_postgres
     environment:
       POSTGRES_DB: property_listings
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
     ports:
-      - "5433:5432"
+      - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
     networks:
       - property_network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   redis:
     image: redis:latest
@@ -20,6 +25,11 @@ services:
       - "6379:6379"
     networks:
       - property_network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
 volumes:
   postgres_data:
